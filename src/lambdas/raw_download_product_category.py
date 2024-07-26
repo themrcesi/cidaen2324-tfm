@@ -1,8 +1,13 @@
 import datetime
-import json
-
+import asyncio
 from etl.raw import download_products_by_category
-from etl.utils import RECURSION_LIMIT
+from etl.utils import (
+    MAX_PRODUCTS,
+    S3_BUCKET_DATA,
+    save_json_to_s3,
+    S3_BUCKET_RAW_PRODUCTS_CATEGORY_PATH,
+)
+import logging
 
 
 def lambda_handler(event, context):
@@ -23,15 +28,39 @@ def lambda_handler(event, context):
         >>> lambda_handler({"day": "2022-01-01", "category_id": 123, "category_path": "path/to/category", "recursion_limit": 10000})
         {'search_objects': [...], 'date': '2022-01-01'}
     """
-    day = datetime.datetime.fromisoformat(event["day"])
-    category_id = event["category_id"]
-    category_path = event["category_path"]
-    recursion_limit = event.get("recursion_limit", RECURSION_LIMIT)
-    result = download_products_by_category(
-        day, category_id, category_path, recursion_limit
+    day = (
+        datetime.datetime.fromisoformat(inputt)
+        if (inputt := event.get("day"))
+        else datetime.datetime.today()
     )
-    return {
-        "statusCode": 200,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps(result),
-    }
+    category_id = event["category_id"]
+    category_path_root = event["category_path_root"]
+    category_search_path = event["category_search_path"]
+    recursion_limit = event.get("max_products", MAX_PRODUCTS)
+    logging.info(f"Downloading products for category {category_id} on {day.date()}")
+    result = asyncio.run(
+        download_products_by_category(
+            day, category_path_root, category_search_path, recursion_limit
+        )
+    )
+    logging.info(
+        f"Downloaded {len(result['search_objects'])} products for category {category_id} on {day.date()} and saving to S3 in {S3_BUCKET_RAW_PRODUCTS_CATEGORY_PATH.format(day=day.date().strftime('%Y-%m-%d'))}/{category_id}.json"
+    )
+    save_json_to_s3(
+        S3_BUCKET_DATA,
+        f"{S3_BUCKET_RAW_PRODUCTS_CATEGORY_PATH.format(day=day.date().strftime('%Y-%m-%d'))}/{category_id}.json",
+        result,
+    )
+    return {"statusCode": 200, "headers": {"Content-Type": "application/json"}}
+
+
+if __name__ == "__main__":
+    lambda_handler(
+        {
+            "day": datetime.datetime.now().isoformat(),
+            "category_id": 10393,
+            "category_path_root": "general",
+            "category_search_path": "category_ids=13200&object_type_ids=10393",
+        },
+        {},
+    )
