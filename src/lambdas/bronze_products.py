@@ -37,6 +37,7 @@ def lambda_handler(event, context):
         path=f"s3://{S3_BUCKET_DATA}/{S3_BUCKET_BRONZE_PRODUCTS_PATH}",
         dataset=True,
         partition_cols=["date"],
+        mode="overwrite_partitions",
     )
     return {
         "statusCode": 200,

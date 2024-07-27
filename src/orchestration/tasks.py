@@ -17,7 +17,7 @@ lambda_client = boto3.client(
 @task(
     name="raw_categories",
     cache_key_fn=task_input_hash,
-    cache_expiration=datetime.timedelta(minutes=1),
+    cache_expiration=datetime.timedelta(hours=1),
     retries=2,
     retry_delay_seconds=5,
 )
@@ -35,7 +35,7 @@ def raw_categories(day: Optional[datetime.datetime] = None) -> Dict:
 @task(
     name="raw_product_categories",
     cache_key_fn=task_input_hash,
-    cache_expiration=datetime.timedelta(minutes=1),
+    cache_expiration=datetime.timedelta(hours=1),
     retries=2,
     retry_delay_seconds=5,
 )
@@ -65,7 +65,7 @@ def raw_product_category(
 @task(
     name="bronze_categories",
     cache_key_fn=task_input_hash,
-    cache_expiration=datetime.timedelta(minutes=1),
+    cache_expiration=datetime.timedelta(hours=1),
     retries=2,
     retry_delay_seconds=5,
 )
@@ -75,6 +75,34 @@ def bronze_categories() -> List[Dict]:
     )
     categories = json.loads(result["Payload"].read())["body"]
     return categories
+
+
+@task(
+    name="bronze_products",
+    cache_key_fn=task_input_hash,
+    cache_expiration=datetime.timedelta(hours=1),
+    retries=2,
+    retry_delay_seconds=5,
+)
+def bronze_products(day: Optional[datetime.datetime] = None) -> None:
+    day = day or datetime.datetime.now()
+    ...
+
+
+@task(
+    name="silver_products",
+    cache_key_fn=task_input_hash,
+    cache_expiration=datetime.timedelta(hours=1),
+    retries=2,
+    retry_delay_seconds=5,
+)
+def silver_products(day: Optional[datetime.datetime] = None) -> None:
+    day = day or datetime.datetime.now()
+    lambda_client.invoke(
+        FunctionName="silver_products",
+        InvocationType="RequestResponse",
+        Payload=json.dumps({"day": day.isoformat()}),
+    )
 
 
 if __name__ == "__main__":

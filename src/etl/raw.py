@@ -31,51 +31,55 @@ def download_categories(day: datetime.datetime) -> Dict:
 
 async def download_products_by_category(
     day: datetime.datetime,
+    category_id: int,
     category_path_root: str,
     category_search_path: str,
     max_products: int = MAX_PRODUCTS,
 ) -> Dict:
     """
-    Downloads products from a given category on Wallapop API.
+    Downloads the products from the API for a given category.
 
-    Args:
-        day (datetime.datetime): The date of the download. Defaults to the current date if not provided.
-        category_path_root (str): The ID of the category to download products from.
-        category_search_path (str): The path of the category on the Wallapop API.
-        recursion_limit (int, optional): The maximum number of recursive requests to make. Defaults to RECURSION_LIMIT.
+    Parameters:
+        day (datetime.datetime): The date for which the products should be downloaded. If not provided, the current date is used.
+        category_id (int): The ID of the category to download the products from.
+        category_path_root (str): The root path of the category on the API.
+        category_search_path (str): The search path of the category on the API.
+        max_products (int): The maximum number of products to download. Defaults to MAX_PRODUCTS.
 
     Returns:
-        dict: A dictionary containing the downloaded search objects and the date of the download.
-
-    Raises:
-        None
-
-    Example:
-        >>> download_products_by_category(datetime.datetime(2022, 1, 1), 123, "path/to/category")
-        {'search_objects': [...], 'date': '2022-01-01'}
+        dict: A dictionary containing the downloaded products.
     """
 
     async def _download_product_category_index(url: str, headers: Dict) -> List:
         response = await asyncio.to_thread(requests.get, url, headers=headers)
         return response.json()["search_objects"]
 
-    returned = {"search_objects": [], "date": day.date().strftime("%Y-%m-%d")}
-    results = await asyncio.gather(
-        *[
-            _download_product_category_index(
-                URLS["products_category"].format(
-                    category_path_root=category_path_root,
-                    category_search_path=category_search_path,
-                    start=start,
-                ),
-                {**HEADERS, "X-DeviceID": _generate_device_id()},
+    try:
+        returned = {"search_objects": [], "date": day.date().strftime("%Y-%m-%d")}
+        results = await asyncio.gather(
+            *[
+                _download_product_category_index(
+                    URLS["products_category"].format(
+                        category_path_root=category_path_root,
+                        category_search_path=category_search_path,
+                        start=start,
+                    ),
+                    {**HEADERS, "X-DeviceID": _generate_device_id()},
+                )
+                for start in range(
+                    0, max_products, 40
+                )  # because Wallapop API only allows 40 items per request
+            ]
+        )
+        returned["search_objects"] = list(
+            map(
+                lambda x: {**x, "category_id": category_id},
+                chain.from_iterable(list(filter(lambda x: x != [], results))),
             )
-            for start in range(
-                0, max_products, 40
-            )  # because Wallapop API only allows 40 items per request
-        ]
-    )
-    returned["search_objects"] = list(
-        chain.from_iterable(list(filter(lambda x: x != [], results)))
-    )
-    return returned
+        )
+        return returned
+    except Exception as e:
+        print(
+            f"Error downloading raw products {day} {category_path_root}-{category_search_path}: {e}"
+        )
+        raise

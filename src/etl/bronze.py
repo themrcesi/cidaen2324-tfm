@@ -142,11 +142,7 @@ def products(day: datetime.datetime) -> pd.DataFrame:
     df = df.assign(
         date=lambda x: x["date"].apply(lambda x: x.date()),
         product_id=lambda x: x["search_objects"].apply(lambda x: x["id"]),
-        category_id=lambda x: x["search_objects"].apply(
-            lambda x: x["content"]["category_id"]
-            if "content" in x
-            else x["category_id"]
-        ),
+        category_id=lambda x: x["search_objects"].apply(lambda x: x["category_id"]),
         created_at=lambda x: x["search_objects"].apply(
             lambda x: x["content"]["creation_date"]
             if "content" in x
