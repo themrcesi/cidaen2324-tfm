@@ -8,6 +8,9 @@ from .tasks import (
     raw_product_category,
     bronze_products,
     silver_products,
+    gold_categories,
+    gold_locations,
+    gold_products,
 )
 
 
@@ -22,8 +25,11 @@ async def etl(day: Optional[datetime.datetime] = None) -> None:
             category_path_root=category["category_path_root"],
             category_search_path=category["category_search_path"],
         )
-    # bronze_products(day=day)
-    # silver_products(day=day)
+    bronze_products(day=day)
+    silver_products(day=day)
+    gold_categories.submit(day=day)
+    gold_locations.submit(day=day)
+    gold_products.submit(day=day)
 
 
 if __name__ == "__main__":

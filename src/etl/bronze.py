@@ -183,6 +183,22 @@ def products(day: datetime.datetime) -> pd.DataFrame:
         user_id=lambda x: x["search_objects"].apply(
             lambda x: x["content"]["user"]["id"] if "content" in x else x["user"]["id"]
         ),
+        # brand=lambda x: x["search_objects"].apply(
+        #     lambda y: y["content"]
+        #     .get("type_attributes", {})
+        #     .get("brand", {})
+        #     .get("text", "--")
+        #     if "content" in y
+        #     else y.get("type_attributes", {}).get("brand", {}).get("text", "--")
+        # ),
+        # condition=lambda x: x["search_objects"].apply(
+        #     lambda y: y["content"]
+        #     .get("type_attributes", {})
+        #     .get("condition", {})
+        #     .get("text", "--")
+        #     if "content" in y
+        #     else y.get("type_attributes", {}).get("condition", {}).get("text", "--")
+        # ),
     ).loc[
         :,
         [
@@ -195,6 +211,8 @@ def products(day: datetime.datetime) -> pd.DataFrame:
             "currency",
             "title",
             "description",
+            # "brand",
+            # "condition",
             "web_slug",
             "country_code",
             "city",

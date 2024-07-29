@@ -105,6 +105,54 @@ def silver_products(day: Optional[datetime.datetime] = None) -> None:
     )
 
 
+@task(
+    name="gold_categories",
+    cache_key_fn=task_input_hash,
+    cache_expiration=datetime.timedelta(hours=1),
+    retries=2,
+    retry_delay_seconds=5,
+)
+def gold_categories(day: Optional[datetime.datetime] = None) -> None:
+    day = day or datetime.datetime.now()
+    lambda_client.invoke(
+        FunctionName="gold_categories",
+        InvocationType="RequestResponse",
+        Payload=json.dumps({"day": day.isoformat()}),
+    )
+
+
+@task(
+    name="gold_locations",
+    cache_key_fn=task_input_hash,
+    cache_expiration=datetime.timedelta(hours=1),
+    retries=2,
+    retry_delay_seconds=5,
+)
+def gold_locations(day: Optional[datetime.datetime] = None) -> None:
+    day = day or datetime.datetime.now()
+    lambda_client.invoke(
+        FunctionName="gold_locations",
+        InvocationType="RequestResponse",
+        Payload=json.dumps({"day": day.isoformat()}),
+    )
+
+
+@task(
+    name="gold_products",
+    cache_key_fn=task_input_hash,
+    cache_expiration=datetime.timedelta(hours=1),
+    retries=2,
+    retry_delay_seconds=5,
+)
+def gold_products(day: Optional[datetime.datetime] = None) -> None:
+    day = day or datetime.datetime.now()
+    lambda_client.invoke(
+        FunctionName="gold_products",
+        InvocationType="RequestResponse",
+        Payload=json.dumps({"day": day.isoformat()}),
+    )
+
+
 if __name__ == "__main__":
     raw_categories()
     # raw_product_category(category_id=100, category_path="cars")
