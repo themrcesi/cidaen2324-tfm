@@ -6,7 +6,7 @@ RUN pip install awswrangler pandas
 
 # Copy your .py file
 COPY src/etl/ /app/etl/
-COPY src/infra/docker_bronze_products/main.py /app
+COPY src/infra/ecs_bronze_products/main.py /app
 
 # Set the working directory
 WORKDIR /app
