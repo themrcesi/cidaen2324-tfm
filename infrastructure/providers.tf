@@ -26,6 +26,7 @@ locals {
   aws_region  = "eu-west-3"      # AWS region
   aws_profile = "cgarcia" # AWS profile
  ///////////////////////////////////////////////////////////////////////////////////////////// 
+  tfm_role = "arn:aws:iam::480361390441:role/TFM_Role"
   ecr_reg   = "${local.aws_account}.dkr.ecr.${local.aws_region}.amazonaws.com" # ECR docker registry URI
   ecr_repo  = var.ecr_bronze_products_repository_name
   image_tag = "latest"

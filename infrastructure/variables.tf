@@ -21,14 +21,6 @@ variable "ecs_bronze_products_task_family_name" {
   default     = "bronze_products"
 }
 
-variable "tfm_role" {
-  description = "The ARN of the task role"
-  type        = string
-  default = "arn:aws:iam::480361390441:role/TFM_Role"
-}
 
-variable "etl_lambda_layer" {
-  description = "The ARN of the Lambda layer"
-  type        = string
-  default = "arn:aws:lambda:eu-west-3:480361390441:layer:cidaen2324-tfm-etl-layer-dev:20"
-}
+
+

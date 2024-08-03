@@ -34,8 +34,8 @@ resource "aws_ecs_task_definition" "bronze_products" {
   network_mode             = "awsvpc"
   cpu                      = "1024"  # 1 vCPU
   memory                   = "8192"  # 8 GB
-  task_role_arn            = var.tfm_role
-  execution_role_arn       = var.tfm_role
+  task_role_arn            = local.tfm_role
+  execution_role_arn       = local.tfm_role
 
   runtime_platform {
     operating_system_family = "LINUX"
@@ -64,95 +64,71 @@ resource "aws_ecs_task_definition" "bronze_products" {
 }
 
 ############################## LAMBDAS ###################################
-resource "null_resource" "create_lambda_zip_bronze_categories" {
-  provisioner "local-exec" {
-    command = <<EOT
-      cd ../src/infra
-      echo $PWD
-      zip -r9 ../../lambda_function.zip lambda_bronze_categories.py
-    EOT
-  }
-  # Add a trigger to force the creation of the ZIP file if the source file changes
-  triggers = {
-    always_run = "${timestamp()}"
-  }
+module "raw_categories" {
+  source = "./lambdas"
+  lambda_fn_name = "raw_download_categories_dev"
+  lambda_fn_script_name = "lambda_raw_download_categories"
+  memory_size = 128
+  timeout = 10
+  tfm_role = local.tfm_role
 }
 
-resource "aws_lambda_function" "bronze_categories" {
-  depends_on = [null_resource.create_lambda_zip_bronze_categories]
-
-  function_name = "bronze_categories_dev"
-  role          = var.tfm_role
-  handler       = "lambda_bronze_categories.lambda_handler"
-  runtime       = "python3.10"
-  memory_size   = 512
-  timeout       = 60
-  architectures = ["arm64"]
-
-  layers = [var.etl_lambda_layer]
-
-  environment {
-    variables = {
-      LOG_LEVEL = "DEBUG"
-    }
-  }
-
-  filename         = "${path.module}/../lambda_function.zip"
-  # source_code_hash = filebase64sha256("${path.module}/../lambda_function.zip")
+module "raw_product_categories" {
+  depends_on = [ module.raw_categories ]
+  source = "./lambdas"
+  lambda_fn_name = "raw_download_product_category_dev"
+  lambda_fn_script_name = "lambda_raw_download_product_category"
+  memory_size = 512
+  timeout = 60
+  tfm_role = local.tfm_role
 }
 
-resource "null_resource" "cleanup_lambda_zip_bronze_categories" {
-  provisioner "local-exec" {
-    command = "rm -f ${path.module}/../lambda_function.zip"
-  }
-  triggers = {
-    always_run = "${timestamp()}"
-  }
+module "bronze_categories" {
+  depends_on = [ module.raw_product_categories ]
+  source = "./lambdas"
+  lambda_fn_name = "bronze_categories_dev"
+  lambda_fn_script_name = "lambda_bronze_categories"
+  memory_size = 512
+  timeout = 100
+  tfm_role = local.tfm_role
 }
 
-resource "null_resource" "create_lambda_zip_bronze_products" {
-  provisioner "local-exec" {
-    command = <<EOT
-      cd ../src/infra
-      echo $PWD
-      zip -r9 ../../lambda_function.zip lambda_bronze_products.py
-    EOT
-  }
-  # Add a trigger to force the creation of the ZIP file if the source file changes
-  triggers = {
-    always_run = "${timestamp()}"
-  }
+module "silver_products" {
+  depends_on = [ module.bronze_categories ]
+  source = "./lambdas"
+  lambda_fn_name = "silver_products_dev"
+  lambda_fn_script_name = "lambda_silver_products"
+  memory_size = 1024
+  timeout = 60*4
+  tfm_role = local.tfm_role
 }
 
-resource "aws_lambda_function" "bronze_products" {
-  depends_on = [null_resource.create_lambda_zip_bronze_products]
-
-  function_name = "bronze_products_dev"
-  role          = var.tfm_role
-  handler       = "lambda_bronze_products.lambda_handler"
-  runtime       = "python3.10"
-  memory_size   = 512
-  timeout       = 60
-  architectures = ["arm64"]
-
-  layers = [var.etl_lambda_layer]
-
-  environment {
-    variables = {
-      LOG_LEVEL = "DEBUG"
-    }
-  }
-
-  filename         = "${path.module}/../lambda_function.zip"
-  # source_code_hash = filebase64sha256("${path.module}/../lambda_function.zip")
+module "gold_categories" {
+  depends_on = [ module.silver_products ]
+  source = "./lambdas"
+  lambda_fn_name = "gold_categories_dev"
+  lambda_fn_script_name = "lambda_gold_categories"
+  memory_size = 1024
+  timeout = 60*5
+  tfm_role = local.tfm_role
 }
 
-resource "null_resource" "cleanup_lambda_zip_bronze_products" {
-  provisioner "local-exec" {
-    command = "rm -f ${path.module}/../lambda_function.zip"
-  }
-  triggers = {
-    always_run = "${timestamp()}"
-  }
+module "gold_products" {
+  depends_on = [ module.gold_categories ]
+  source = "./lambdas"
+  lambda_fn_name = "gold_products_dev"
+  lambda_fn_script_name = "lambda_gold_products"
+  memory_size = 1024
+  timeout = 60*5
+  tfm_role = local.tfm_role
 }
 
+module "gold_locations" {
+  depends_on = [ module.gold_products ]
+  source = "./lambdas"
+  lambda_fn_name = "gold_locations_dev"
+  lambda_fn_script_name = "lambda_gold_locations"
+  memory_size = 1024
+  timeout = 60*5
+  tfm_role = local.tfm_role
+}

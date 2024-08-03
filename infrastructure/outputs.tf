@@ -13,11 +13,31 @@ output "docker_image_uri" {
 output "ecs_task_definition_arn" {
   value = aws_ecs_task_definition.bronze_products.arn
 }
-
-output "bronze_categories_fn_arn" {
-  value = aws_lambda_function.bronze_categories.arn
+############################ LAMBDAS ############################
+output "raw_categories_function_arn" {
+  value = module.raw_categories.lambda_fn_arn
 }
 
-output "bronze_products_fn_arn" {
-  value = aws_lambda_function.bronze_products.arn
+output "raw_product_categories_function_arn" {
+  value = module.raw_product_categories.lambda_fn_arn
+}
+
+output "bronze_categories_function_arn" {
+  value = module.bronze_categories.lambda_fn_arn
+}
+
+output "silver_products_function_arn" {
+  value = module.silver_products.lambda_fn_arn
+}
+
+output "gold_categories_function_arn" {
+  value = module.gold_categories.lambda_fn_arn
+}
+
+output "gold_locations_function_arn" {
+  value = module.gold_locations.lambda_fn_arn
+}
+
+output "gold_products_function_arn" {
+  value = module.gold_products.lambda_fn_arn
 }
