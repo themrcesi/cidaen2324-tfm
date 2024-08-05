@@ -15,6 +15,7 @@ def lambda_handler(event, context):
     wr.s3.to_csv(
         df=gold_df,
         path=f"s3://{S3_BUCKET_DATA}/{S3_BUCKET_GOLD_PRODUCTS_PATH}",
+        index=False,
     )
     return {
         "statusCode": 200,
