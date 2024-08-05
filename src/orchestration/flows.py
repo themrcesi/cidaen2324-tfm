@@ -25,6 +25,7 @@ async def etl(day: Optional[datetime.datetime] = None) -> None:
             category_path_root=category["category_path_root"],
             category_search_path=category["category_search_path"],
         )
+
     bronze_products(day=day)
     silver_products(day=day)
     gold_categories.submit(day=day)

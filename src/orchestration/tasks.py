@@ -2,7 +2,7 @@ from typing import Dict, List, Optional, Tuple
 import datetime
 import boto3
 import json
-from prefect import task
+from prefect import task, get_run_logger
 from prefect.tasks import task_input_hash
 import time
 import random
@@ -21,7 +21,7 @@ def _get_task_status(cluster, task_arn) -> Tuple[str, int]:
     return task["lastStatus"], task.get("containers", [{}])[0].get("exitCode")
 
 
-def _check_lambda_execution_status(response, lambda_function_name) -> None:
+def _check_lambda_execution_status(response, lambda_function_name) -> Dict:
     response_payload = json.loads(response["Payload"].read())
     # Check for function errors
     if "FunctionError" in response:
@@ -29,6 +29,7 @@ def _check_lambda_execution_status(response, lambda_function_name) -> None:
         raise RuntimeError(
             f"Lambda function {lambda_function_name} failed with error: {error_message}"
         )
+    return response_payload
 
 
 def _check_ecs_task_execution_status(cluster_name, response):
@@ -60,8 +61,8 @@ def raw_categories(day: Optional[datetime.datetime] = None) -> Dict:
         InvocationType="RequestResponse",
         Payload=json.dumps({"day": day.isoformat()}),
     )
-    _check_lambda_execution_status(result, "raw_download_categories")
-    result = json.loads(json.loads(result["Payload"].read())["body"])
+    response = _check_lambda_execution_status(result, "raw_download_categories")
+    result = json.loads(response["body"])
     return result
 
 
@@ -69,8 +70,8 @@ def raw_categories(day: Optional[datetime.datetime] = None) -> Dict:
     name="raw_product_categories",
     cache_key_fn=task_input_hash,
     cache_expiration=datetime.timedelta(hours=1),
-    retries=2,
-    retry_delay_seconds=5,
+    retries=1,
+    retry_delay_seconds=10,
 )
 def raw_product_category(
     *,
@@ -79,21 +80,26 @@ def raw_product_category(
     category_path_root: str,
     category_search_path: str,
 ) -> None:
-    day = day or datetime.datetime.now()
-    result = lambda_client.invoke(
-        FunctionName="raw_download_product_category",
-        InvocationType="RequestResponse",
-        Payload=json.dumps(
-            {
-                "day": day.isoformat(),
-                "category_id": category_id,
-                "category_path_root": category_path_root,
-                "category_search_path": category_search_path,
-            }
-        ),
-    )
-    _check_lambda_execution_status(result, "raw_download_product_category")
-    time.sleep(random.random() * 2)
+    try:
+        day = day or datetime.datetime.now()
+        result = lambda_client.invoke(
+            FunctionName="raw_download_product_category",
+            InvocationType="RequestResponse",
+            Payload=json.dumps(
+                {
+                    "day": day.isoformat(),
+                    "category_id": category_id,
+                    "category_path_root": category_path_root,
+                    "category_search_path": category_search_path,
+                }
+            ),
+        )
+        _check_lambda_execution_status(result, "raw_download_product_category")
+        time.sleep(random.random() * 2)
+    except RuntimeError as e:
+        get_run_logger().error(
+            f"There has been an error downloading category {category_id}: {e}"
+        )
 
 
 @task(
@@ -107,8 +113,8 @@ def bronze_categories() -> List[Dict]:
     result = lambda_client.invoke(
         FunctionName="bronze_categories", InvocationType="RequestResponse"
     )
-    _check_lambda_execution_status(result, "bronze_categories")
-    categories = json.loads(result["Payload"].read())["body"]
+    response = _check_lambda_execution_status(result, "bronze_categories")
+    categories = response["body"]
     return categories
 
 
