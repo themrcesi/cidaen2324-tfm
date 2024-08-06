@@ -50,11 +50,28 @@ def _check_ecs_task_execution_status(cluster_name, response):
 @task(
     name="raw_categories",
     cache_key_fn=task_input_hash,
-    cache_expiration=datetime.timedelta(hours=1),
+    cache_expiration=datetime.timedelta(hours=3),
     retries=2,
     retry_delay_seconds=5,
 )
 def raw_categories(day: Optional[datetime.datetime] = None) -> Dict:
+    """
+    Retrieves raw category data for a given day.
+
+    Args:
+        day (Optional[datetime.datetime]): The day for which to retrieve the data. If not provided, the current day is used.
+
+    Returns:
+        Dict: A dictionary containing the raw category data.
+
+    Raises:
+        RuntimeError: If the lambda function "raw_download_categories" fails to execute.
+
+    Notes:
+        - The function is decorated with `@task` to indicate that it is a Prefect task.
+        - The task is cached using the `cache_key_fn` and `cache_expiration` parameters.
+        - The task is retried up to two times with a delay of 5 seconds between retries.
+    """
     day = day or datetime.datetime.now()
     result = lambda_client.invoke(
         FunctionName="raw_download_categories",
@@ -69,7 +86,7 @@ def raw_categories(day: Optional[datetime.datetime] = None) -> Dict:
 @task(
     name="raw_product_categories",
     cache_key_fn=task_input_hash,
-    cache_expiration=datetime.timedelta(hours=1),
+    cache_expiration=datetime.timedelta(hours=3),
     retries=1,
     retry_delay_seconds=10,
 )
@@ -80,6 +97,26 @@ def raw_product_category(
     category_path_root: str,
     category_search_path: str,
 ) -> None:
+    """
+    Retrieves raw product category data for a given day and category.
+
+    Args:
+        day (Optional[datetime.datetime]): The day for which to retrieve the data. If not provided, the current day is used.
+        category_id (int): The ID of the category.
+        category_path_root (str): The root path of the category.
+        category_search_path (str): The search path of the category.
+
+    Returns:
+        None
+
+    Raises:
+        RuntimeError: If the lambda function "raw_download_product_category" fails to execute.
+
+    Notes:
+        - The function is decorated with `@task` to indicate that it is a Prefect task.
+        - The task is cached using the `cache_key_fn` and `cache_expiration` parameters.
+        - The task is retried up to one time with a delay of 10 seconds between retries.
+    """
     try:
         day = day or datetime.datetime.now()
         result = lambda_client.invoke(
@@ -105,11 +142,22 @@ def raw_product_category(
 @task(
     name="bronze_categories",
     cache_key_fn=task_input_hash,
-    cache_expiration=datetime.timedelta(hours=1),
+    cache_expiration=datetime.timedelta(hours=3),
     retries=2,
     retry_delay_seconds=5,
 )
 def bronze_categories() -> List[Dict]:
+    """
+    Retrieves the bronze categories from the lambda function "bronze_categories".
+
+    This function is decorated with `@task` to indicate that it is a Prefect task. The task is cached using the `cache_key_fn` and `cache_expiration` parameters. The task is retried up to two times with a delay of 5 seconds between retries.
+
+    Returns:
+        List[Dict]: A list of dictionaries representing the bronze categories.
+
+    Raises:
+        RuntimeError: If the lambda function "bronze_categories" fails to execute.
+    """
     result = lambda_client.invoke(
         FunctionName="bronze_categories", InvocationType="RequestResponse"
     )
@@ -126,6 +174,19 @@ def bronze_categories() -> List[Dict]:
     retry_delay_seconds=5,
 )
 def bronze_products(day: Optional[datetime.datetime] = None) -> None:
+    """
+    This function runs a Prefect task named "bronze_products" that triggers an AWS ECS task.
+
+    It takes an optional parameter `day` of type `datetime.datetime`, defaulting to the current date and time if not provided.
+
+    The function uses the `ecs_client` to run a task with the specified `task_definition_name` and `cluster_name`,
+    overriding the container environment with the provided `day` parameter.
+
+    It then checks the execution status of the ECS task using the `_check_ecs_task_execution_status` function.
+
+    Returns:
+        None
+    """
     day = day or datetime.datetime.now()
     task_definition_name = "bronze_products"
     cluster_name = "cidaen-tfm-etl"
@@ -165,6 +226,28 @@ def bronze_products(day: Optional[datetime.datetime] = None) -> None:
     retry_delay_seconds=5,
 )
 def silver_products(day: Optional[datetime.datetime] = None) -> None:
+    """
+    Runs the "silver_products" task using AWS Lambda.
+
+    This function is a Prefect task that triggers an AWS Lambda function named "silver_products".
+    It takes an optional parameter `day` of type `datetime.datetime`, defaulting to the current date and time if not provided.
+
+    The function invokes the Lambda function with the provided `day` parameter.
+    It then checks the execution status of the Lambda function using the `_check_lambda_execution_status` function.
+
+    Parameters:
+        day (Optional[datetime.datetime]): The day for which to retrieve the silver products. If not provided, the current day is used.
+
+    Returns:
+        None
+
+    Retries:
+        - The task is retried up to two times with a delay of 5 seconds between retries.
+
+    Caching:
+        - The task is cached using the `cache_key_fn` and `cache_expiration` parameters.
+        - The cache expires after 1 hour.
+    """
     day = day or datetime.datetime.now()
     result = lambda_client.invoke(
         FunctionName="silver_products",
@@ -182,6 +265,28 @@ def silver_products(day: Optional[datetime.datetime] = None) -> None:
     retry_delay_seconds=5,
 )
 def gold_categories(day: Optional[datetime.datetime] = None) -> None:
+    """
+    Runs the "gold_categories" task using AWS Lambda.
+
+    This function is a Prefect task that triggers an AWS Lambda function named "gold_categories".
+    It takes an optional parameter `day` of type `datetime.datetime`, defaulting to the current date and time if not provided.
+
+    The function invokes the Lambda function with the provided `day` parameter.
+    It then checks the execution status of the Lambda function using the `_check_lambda_execution_status` function.
+
+    Parameters:
+        day (Optional[datetime.datetime]): The day for which to retrieve the gold categories. If not provided, the current day is used.
+
+    Returns:
+        None
+
+    Retries:
+        - The task is retried up to two times with a delay of 5 seconds between retries.
+
+    Caching:
+        - The task is cached using the `cache_key_fn` and `cache_expiration` parameters.
+        - The cache expires after 1 hour.
+    """
     day = day or datetime.datetime.now()
     result = lambda_client.invoke(
         FunctionName="gold_categories",
@@ -199,6 +304,28 @@ def gold_categories(day: Optional[datetime.datetime] = None) -> None:
     retry_delay_seconds=5,
 )
 def gold_locations(day: Optional[datetime.datetime] = None) -> None:
+    """
+    Runs the "gold_locations" task using AWS Lambda.
+
+    This function is a Prefect task that triggers an AWS Lambda function named "gold_locations".
+    It takes an optional parameter `day` of type `datetime.datetime`, defaulting to the current date and time if not provided.
+
+    The function invokes the Lambda function with the provided `day` parameter.
+    It then checks the execution status of the Lambda function using the `_check_lambda_execution_status` function.
+
+    Parameters:
+        day (Optional[datetime.datetime]): The day for which to retrieve the gold locations. If not provided, the current day is used.
+
+    Returns:
+        None
+
+    Retries:
+        - The task is retried up to two times with a delay of 5 seconds between retries.
+
+    Caching:
+        - The task is cached using the `cache_key_fn` and `cache_expiration` parameters.
+        - The cache expires after 1 hour.
+    """
     day = day or datetime.datetime.now()
     result = lambda_client.invoke(
         FunctionName="gold_locations",
@@ -216,6 +343,28 @@ def gold_locations(day: Optional[datetime.datetime] = None) -> None:
     retry_delay_seconds=5,
 )
 def gold_products(day: Optional[datetime.datetime] = None) -> None:
+    """
+    Runs the "gold_products" task using AWS Lambda.
+
+    This function is a Prefect task that triggers an AWS Lambda function named "gold_products".
+    It takes an optional parameter `day` of type `datetime.datetime`, defaulting to the current date and time if not provided.
+
+    The function invokes the Lambda function with the provided `day` parameter.
+    It then checks the execution status of the Lambda function using the `_check_lambda_execution_status` function.
+
+    Parameters:
+        day (Optional[datetime.datetime]): The day for which to retrieve the gold products. If not provided, the current day is used.
+
+    Returns:
+        None
+
+    Retries:
+        - The task is retried up to two times with a delay of 5 seconds between retries.
+
+    Caching:
+        - The task is cached using the `cache_key_fn` and `cache_expiration` parameters.
+        - The cache expires after 1 hour.
+    """
     day = day or datetime.datetime.now()
     result = lambda_client.invoke(
         FunctionName="gold_products",
