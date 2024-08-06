@@ -1,4 +1,4 @@
-########################### ECR & ECR ###############################
+########################## ECR & ECR ###############################
 
 resource "aws_ecr_repository" "bronze_products" {
   name                 = var.ecr_bronze_products_repository_name
@@ -74,27 +74,27 @@ module "raw_categories" {
 }
 
 module "raw_product_categories" {
-  depends_on = [ module.raw_categories ]
+  # depends_on = [ module.raw_categories ]
   source = "./lambdas"
   lambda_fn_name = "raw_download_product_category_dev"
   lambda_fn_script_name = "lambda_raw_download_product_category"
   memory_size = 512
-  timeout = 60
+  timeout = 60*5
   tfm_role = local.tfm_role
 }
 
 module "bronze_categories" {
-  depends_on = [ module.raw_product_categories ]
+  # depends_on = [ module.raw_product_categories ]
   source = "./lambdas"
   lambda_fn_name = "bronze_categories_dev"
   lambda_fn_script_name = "lambda_bronze_categories"
-  memory_size = 512
-  timeout = 100
+  memory_size = 256
+  timeout = 60
   tfm_role = local.tfm_role
 }
 
 module "silver_products" {
-  depends_on = [ module.bronze_categories ]
+  # depends_on = [ module.bronze_categories ]
   source = "./lambdas"
   lambda_fn_name = "silver_products_dev"
   lambda_fn_script_name = "lambda_silver_products"
@@ -104,7 +104,7 @@ module "silver_products" {
 }
 
 module "gold_categories" {
-  depends_on = [ module.silver_products ]
+  # depends_on = [ module.silver_products ]
   source = "./lambdas"
   lambda_fn_name = "gold_categories_dev"
   lambda_fn_script_name = "lambda_gold_categories"
@@ -114,7 +114,7 @@ module "gold_categories" {
 }
 
 module "gold_products" {
-  depends_on = [ module.gold_categories ]
+  # depends_on = [ module.gold_categories ]
   source = "./lambdas"
   lambda_fn_name = "gold_products_dev"
   lambda_fn_script_name = "lambda_gold_products"
@@ -124,7 +124,7 @@ module "gold_products" {
 }
 
 module "gold_locations" {
-  depends_on = [ module.gold_products ]
+  # depends_on = [ module.gold_products ]
   source = "./lambdas"
   lambda_fn_name = "gold_locations_dev"
   lambda_fn_script_name = "lambda_gold_locations"

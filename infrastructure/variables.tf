@@ -20,7 +20,3 @@ variable "ecs_bronze_products_task_family_name" {
   type        = string
   default     = "bronze_products"
 }
-
-
-
-
