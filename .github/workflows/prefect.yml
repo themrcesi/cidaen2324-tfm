@@ -1,9 +1,10 @@
 name: Deploy to Prefect Cloud
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Terraform CI/CD"]
+    types:
+      - completed
 
 jobs:
   deploy:
