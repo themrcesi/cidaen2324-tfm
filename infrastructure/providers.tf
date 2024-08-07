@@ -30,6 +30,7 @@ locals {
   tfm_role = "arn:aws:iam::480361390441:role/TFM_Role"
   ecr_reg   = "${local.aws_account}.dkr.ecr.${local.aws_region}.amazonaws.com" # ECR docker registry URI
   ecr_repo  = var.ecr_bronze_products_repository_name
+  ecr_repo_pipeline  = var.ecr_tfm-etl-pipeline_repository_name
   image_tag = "latest"
 
   dkr_img_src_path = "${path.module}/../src/infra/ecs_bronze_products"

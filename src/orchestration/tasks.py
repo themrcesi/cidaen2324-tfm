@@ -1,18 +1,14 @@
 from typing import Dict, List, Optional, Tuple
 import datetime
-import boto3
 import json
 from prefect import task, get_run_logger
 from prefect.tasks import task_input_hash
 import time
 import random
+import boto3
 
-
-lambda_client = boto3.client(
-    "lambda",
-    region_name="eu-west-3",
-)
 ecs_client = boto3.client("ecs", region_name="eu-west-3")
+lambda_client = boto3.client("lambda", region_name="eu-west-3")
 
 
 def _get_task_status(cluster, task_arn) -> Tuple[str, int]:

@@ -1,5 +1,18 @@
+############################# LAMBDA LAYER ######################
+
+# Output the ARN of the Lambda layer
+output "lambda_layer_arn" {
+  value = aws_lambda_layer_version.etl_layer.arn
+}
+
+############################# ECR REPOSITORY ######################
+
 output "ecr_repository_url" {
   value = aws_ecr_repository.bronze_products.repository_url
+}
+
+output "ecr_etl-pipeline-repository_url" {
+  value = aws_ecr_repository.tfm-etl-pipeline.repository_url
 }
 
 output "ecs_cluster_arn" {
@@ -12,6 +25,10 @@ output "docker_image_uri" {
 
 output "ecs_task_definition_arn" {
   value = aws_ecs_task_definition.bronze_products.arn
+}
+
+output "ecs_etl-pipeline-task_definition_arn" {
+  value = aws_ecs_task_definition.tfm-etl-pipeline.arn
 }
 ############################ LAMBDAS ############################
 output "raw_categories_function_arn" {

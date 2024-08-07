@@ -1,19 +1,24 @@
 import datetime
 from typing import Optional
+
 from prefect import flow
+from prefect_aws.s3 import S3Bucket
+
 from .tasks import (
-    raw_categories,
     bronze_categories,
-    raw_product_category,
     bronze_products,
-    silver_products,
     gold_categories,
     gold_locations,
     gold_products,
+    raw_categories,
+    raw_product_category,
+    silver_products,
 )
 
+s3_bucket_block = S3Bucket.load("cidaen-tfm-prefect-results")
 
-@flow(name="etl-tfm")
+
+@flow(name="etl-tfm", result_storage=s3_bucket_block)
 def etl(day: Optional[datetime.datetime] = None) -> None:
     """
     Executes the Extract, Transform, Load (ETL) process for the Transformation module.
@@ -63,9 +68,9 @@ def etl(day: Optional[datetime.datetime] = None) -> None:
 
     bronze_products(day=day)
     silver_products(day=day)
-    gold_categories.submit(day=day)
-    gold_locations.submit(day=day)
-    gold_products.submit(day=day)
+    gold_categories(day=day)
+    gold_locations(day=day)
+    gold_products(day=day)
 
 
 if __name__ == "__main__":
