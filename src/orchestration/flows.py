@@ -1,4 +1,3 @@
-import asyncio
 import datetime
 from typing import Optional
 from prefect import flow
@@ -15,7 +14,7 @@ from .tasks import (
 
 
 @flow(name="etl-tfm")
-async def etl(day: Optional[datetime.datetime] = None) -> None:
+def etl(day: Optional[datetime.datetime] = None) -> None:
     """
     Executes the Extract, Transform, Load (ETL) process for the Transformation module.
 
@@ -70,4 +69,4 @@ async def etl(day: Optional[datetime.datetime] = None) -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(etl())
+    etl()
