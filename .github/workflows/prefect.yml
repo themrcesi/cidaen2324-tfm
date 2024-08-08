@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install prefect==2.14.21 prefect-aws==0.4.12 boto3==1.34.30
+          pip install --system "pyyaml==5.3.1" "requests<2.32.0" "docker==6.1.3" docker-compose prefect==2.14.21 prefect-aws==0.4.12 boto3==1.34.30
 
       # - name: Configure AWS credentials
       #   uses: aws-actions/configure-aws-credentials@v2
