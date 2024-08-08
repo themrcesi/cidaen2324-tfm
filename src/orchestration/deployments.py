@@ -1,6 +1,5 @@
 from .flows import etl
 from prefect.deployments.runner import DeploymentImage
-from ..constants import ECS_PREFECT_ETL_PIPELINE_TASK_DEFINITION_ARN
 
 if __name__ == "__main__":
     _ = etl.deploy(
@@ -12,7 +11,7 @@ if __name__ == "__main__":
         ),
         job_variables={
             "env": {"EXTRA_PIP_PACKAGES": "boto3 prefect-aws"},
-            "task_definition_arn": ECS_PREFECT_ETL_PIPELINE_TASK_DEFINITION_ARN,
+            "task_definition_arn": "arn:aws:ecs:eu-west-3:480361390441:task-definition/tfm-etl-pipeline:2",
         },
         cron="0 5 * * *",
     )

@@ -1,17 +1,16 @@
 data "archive_file" "lambda_fn_code" {
   type             = "zip"
-  source_file      = "${path.module}/../../src/infra/${var.lambda_fn_script_name}.py"
+  source_file      = "${path.module}/../../src/infra/${var.lambda_fn_script_name}/lambda_function.py"
   output_file_mode = "0666"
   output_path      = "${path.module}/../../lambda_function_${var.lambda_fn_name}.zip"
 }
-
 
 resource "aws_lambda_function" "lambda_fn" {
   depends_on = [data.archive_file.lambda_fn_code]
 
   function_name = var.lambda_fn_name
   role          = var.tfm_role
-  handler       = "${var.lambda_fn_script_name}.lambda_handler"
+  handler       = "lambda_function.lambda_handler"
   runtime       = "python3.10"
   memory_size   = var.memory_size
   timeout       = var.timeout

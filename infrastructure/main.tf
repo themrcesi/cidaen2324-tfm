@@ -61,33 +61,48 @@ resource "aws_s3_bucket" "utils" {
 
 ########################## LAMBDA LAYER ############################
 
-data "archive_file" "create_layer_zip" {
-  type             = "zip"
-  source_dir      = "${path.module}/../src/etl"
-  output_path      = "${path.module}/etl_layer.zip"
-}
+# data "archive_file" "create_layer_zip" {
+#   type             = "zip"
+#   source_dir      = "${path.module}/../src/etl"
+#   output_path      = "${path.module}/etl_layer.zip"
+# }
 
-# Upload the ZIP file to S3
-resource "aws_s3_object" "layer_zip" {
-  depends_on = [data.archive_file.create_layer_zip, aws_s3_bucket.utils]
-
-  bucket = var.utils_s3_bucket
-  key    = var.utils_s3_bucket_layer_key
-  source = "${path.module}/etl_layer.zip"
-  acl    = "private"
-}
-
-resource "null_resource" "cleanup_layer_zip" {
-  depends_on = [ aws_s3_object.layer_zip ]
+resource "null_resource" "zip_lambda_layer" {
   provisioner "local-exec" {
     command = <<EOT
-      rm -f "${path.module}/etl_layer.zip"
+      rm -rf /tmp/python
+      mkdir /tmp/python
+      cp -r ${path.module}/../src/etl/ /tmp/python/etl
+      cd /tmp/
+      zip -r ${path.module}/etl_layer.zip ./python/
     EOT
   }
+
   triggers = {
     always_run = "${timestamp()}"
   }
 }
+
+# Upload the ZIP file to S3
+resource "aws_s3_object" "layer_zip" {
+  depends_on = [null_resource.zip_lambda_layer, aws_s3_bucket.utils]
+  bucket = var.utils_s3_bucket
+  key    = var.utils_s3_bucket_layer_key
+  source = "/tmp/etl_layer.zip"
+  acl    = "private"
+}
+
+# resource "null_resource" "cleanup_layer_zip" {
+#   depends_on = [ aws_s3_object.layer_zip ]
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       rm -f "${path.module}/etl_layer.zip"
+#     EOT
+#   }
+#   triggers = {
+#     always_run = "${timestamp()}"
+#   }
+# }
 
 # Create the Lambda layer
 resource "aws_lambda_layer_version" "etl_layer" {
@@ -98,10 +113,6 @@ resource "aws_lambda_layer_version" "etl_layer" {
   s3_key      = var.utils_s3_bucket_layer_key
   compatible_runtimes = [var.utils_s3_bucket_layer_runtime]
   compatible_architectures = ["arm64"]
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 ########################## ECR & ECR ###############################
