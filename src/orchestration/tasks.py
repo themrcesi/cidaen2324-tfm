@@ -258,7 +258,7 @@ def silver_products(day: Optional[datetime.datetime] = None) -> None:
     cache_key_fn=task_input_hash,
     cache_expiration=datetime.timedelta(hours=1),
     retries=2,
-    retry_delay_seconds=5,
+    retry_delay_seconds=10,
 )
 def gold_categories(day: Optional[datetime.datetime] = None) -> None:
     """
@@ -297,7 +297,7 @@ def gold_categories(day: Optional[datetime.datetime] = None) -> None:
     cache_key_fn=task_input_hash,
     cache_expiration=datetime.timedelta(hours=1),
     retries=2,
-    retry_delay_seconds=5,
+    retry_delay_seconds=10,
 )
 def gold_locations(day: Optional[datetime.datetime] = None) -> None:
     """
@@ -336,7 +336,7 @@ def gold_locations(day: Optional[datetime.datetime] = None) -> None:
     cache_key_fn=task_input_hash,
     cache_expiration=datetime.timedelta(hours=1),
     retries=2,
-    retry_delay_seconds=5,
+    retry_delay_seconds=10,
 )
 def gold_products(day: Optional[datetime.datetime] = None) -> None:
     """

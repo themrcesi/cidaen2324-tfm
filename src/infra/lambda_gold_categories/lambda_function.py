@@ -40,4 +40,4 @@ def lambda_handler(event, context):
 
 
 if __name__ == "__main__":
-    lambda_handler({"day": "2024-07-29"}, {})
+    lambda_handler({"day": "2024-08-12"}, {})

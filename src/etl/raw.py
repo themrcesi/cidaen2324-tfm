@@ -83,3 +83,16 @@ async def download_products_by_category(
             f"Error downloading raw products {day} {category_path_root}-{category_search_path}: {e}"
         )
         raise
+
+
+if __name__ == "__main__":
+    print(
+        asyncio.run(
+            download_products_by_category(
+                day=datetime.datetime.today(),
+                category_id=13200,
+                category_path_root="general",
+                category_search_path="category_ids=13200&object_type_ids=10393",
+            )
+        )
+    )

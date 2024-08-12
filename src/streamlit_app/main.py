@@ -2,7 +2,7 @@ import streamlit as st
 
 pg = st.navigation(
     [
-        st.Page("sections/0_portada.py", title="Home", icon=":material/inventory:"),
+        st.Page("sections/0_portada.py", title="Home", icon=":material/home:"),
         st.Page(
             "sections/1_intro.py", title="Introduction", icon=":material/overview:"
         ),
@@ -18,5 +18,3 @@ pg = st.navigation(
     ]
 )
 pg.run()
-
-st.logo("img/cidaen.png")

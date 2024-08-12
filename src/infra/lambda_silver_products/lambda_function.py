@@ -26,4 +26,5 @@ def lambda_handler(event, context):
 
 
 if __name__ == "__main__":
-    lambda_handler({"day": "2024-07-27"}, {})
+    for day in ["2024-08-08", "2024-08-09", "2024-08-10", "2024-08-11", "2024-08-12"]:
+        lambda_handler({"day": day}, {})
