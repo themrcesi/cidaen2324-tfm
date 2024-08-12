@@ -49,6 +49,9 @@ jobs:
           prefect-api-key: ${{ secrets.PREFECT_API_KEY }}
           prefect-workspace: ${{ secrets.PREFECT_WORKSPACE }}
 
+      - name: Verify Docker Login
+        run: docker info
+
       - name: Deploy to Prefect Cloud
         env:
           PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }}
