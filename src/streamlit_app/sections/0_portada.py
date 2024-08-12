@@ -2,7 +2,7 @@ import streamlit as st
 
 
 with st.container():
-    st.image("streamlit_app/img/cidaen.png")
+    st.image("src/streamlit_app/img/cidaen.png")
     st.markdown(
         """
         <h1 style="text-align: center;">Pipeline de Extracción y Visualización de Datos de Wallapop</h1>
