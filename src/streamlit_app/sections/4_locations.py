@@ -21,7 +21,7 @@ df = get_gold_locations()
 st.title("Vista a nivel de Localización!")
 
 st.markdown(
-    "*Debido a las limitaciones de la API de Wallapop, se limitó la extracción de datos a una localización concreta, el centro de Madrid. Además, la propia API no es consistente en la respuesta para los valores de localización, dejando en muchos casos este campo sin informar.*"
+    "*Debido a las limitaciones de la API de Wallapop y para limitar el alcance de este TFM, se optó por retringir la extracción de datos a una localización concreta, el centro de Madrid. Además, la propia API no es consistente en la respuesta para los valores de localización, dejando en muchos casos este campo sin informar.*"
 )
 
 st.markdown(
