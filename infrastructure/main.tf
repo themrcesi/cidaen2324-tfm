@@ -138,6 +138,7 @@ resource "null_resource" "build_push_dkr_img" {
 
   triggers = {
     image_uri = "${local.ecr_reg}/${local.ecr_repo}:${local.image_tag}"
+    always_run = "${timestamp()}"
   }
 }
 
