@@ -54,7 +54,9 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve
         working-directory: infrastructure
+
   prefect-deploy:
+    needs: infraestructure
     name: Deploy to Prefect Cloud
     runs-on: ubuntu-latest
 
@@ -96,22 +98,22 @@ jobs:
           prefect-api-key: ${{ secrets.PREFECT_API_KEY }}
           prefect-workspace: ${{ secrets.PREFECT_WORKSPACE }}
 
-      - name: echos
-        shell: bash
-        run: |
-          echo ${{ secrets.PREFECT_API_KEY }}
-          echo ${{ secrets.PREFECT_WORKSPACE }}
-          echo ${{ secrets.AWS_REGION }}
-          echo ${{ secrets.AWS_ECR_REGISTRY }}
-          echo ${{ secrets.AWS_ACCESS_KEY_ID }}
-          echo ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          prefect block ls
-          prefect config view
-          prefect config set PREFECT_DEFAULT_DOCKER_BUILD_NAMESPACE=${{ secrets.AWS_ECR_REGISTRY }}
-          prefect config view
-
-      # - name: Run Prefect deployment
-      #   env:
-      #     PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }} # Only needed if using Prefect Cloud
+      # - name: echos
+      #   shell: bash
       #   run: |
-      #     python -m src.orchestration.deployments
+      #     echo ${{ secrets.PREFECT_API_KEY }}
+      #     echo ${{ secrets.PREFECT_WORKSPACE }}
+      #     echo ${{ secrets.AWS_REGION }}
+      #     echo ${{ secrets.AWS_ECR_REGISTRY }}
+      #     echo ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     echo ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     prefect block ls
+      #     prefect config view
+      #     prefect config set PREFECT_DEFAULT_DOCKER_BUILD_NAMESPACE=${{ secrets.AWS_ECR_REGISTRY }}
+      #     prefect config view
+
+      - name: Run Prefect deployment
+        env:
+          PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }} # Only needed if using Prefect Cloud
+        run: |
+          python -m src.orchestration.deployments
