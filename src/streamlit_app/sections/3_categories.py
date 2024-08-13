@@ -108,8 +108,8 @@ with tab_general:
             alt.Chart(days_creation_by_category)
             .mark_bar(color=COLORS[0])
             .encode(
-                x=alt.X("category_parent_display_name:N", sort="y", title="Category"),
-                y=alt.Y("days_since_creation:Q", title="Number of days published"),
+                x=alt.X("category_parent_display_name:N", sort="y", title="Categoría"),
+                y=alt.Y("days_since_creation:Q", title="Numero de días publicado"),
             )
         )
         st.altair_chart(bar_chart, use_container_width=True)
