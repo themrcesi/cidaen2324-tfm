@@ -60,6 +60,8 @@ jobs:
           echo ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           prefect block ls
           prefect config view
+          prefect config set PREFECT_DEFAULT_DOCKER_BUILD_NAMESPACE=${{ secrets.AWS_ECR_REGISTRY }}
+          prefect config view
 
       # - name: Run Prefect deployment
       #   env:
