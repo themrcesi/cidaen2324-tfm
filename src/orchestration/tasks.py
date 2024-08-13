@@ -296,8 +296,8 @@ def gold_categories(day: Optional[datetime.datetime] = None) -> None:
     name="gold_locations",
     cache_key_fn=task_input_hash,
     cache_expiration=datetime.timedelta(hours=1),
-    retries=2,
-    retry_delay_seconds=10,
+    retries=1,
+    retry_delay_seconds=60,
 )
 def gold_locations(day: Optional[datetime.datetime] = None) -> None:
     """

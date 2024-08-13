@@ -281,7 +281,7 @@ module "gold_locations" {
   source = "./lambdas"
   lambda_fn_name = "gold_locations"
   lambda_fn_script_name = "lambda_gold_locations"
-  memory_size = 1024
+  memory_size = 3000
   timeout = 60*5
   tfm_role = module.iam.TFMRole_arn
   etl_lambda_layer_arn = aws_lambda_layer_version.etl_layer.arn
