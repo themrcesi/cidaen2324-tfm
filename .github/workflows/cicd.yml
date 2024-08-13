@@ -97,20 +97,8 @@ jobs:
         with:
           prefect-api-key: ${{ secrets.PREFECT_API_KEY }}
           prefect-workspace: ${{ secrets.PREFECT_WORKSPACE }}
-
-      - name: echos
-        shell: bash
         run: |
-          echo ${{ secrets.PREFECT_API_KEY }}
-          echo ${{ secrets.PREFECT_WORKSPACE }}
-          echo ${{ secrets.AWS_REGION }}
-          echo ${{ secrets.AWS_ECR_REGISTRY }}
-          echo ${{ secrets.AWS_ACCESS_KEY_ID }}
-          echo ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          prefect block ls
-          prefect config view
           prefect config set PREFECT_DEFAULT_DOCKER_BUILD_NAMESPACE=${{ secrets.AWS_ECR_REGISTRY }}
-          prefect config view
 
       - name: Run Prefect deployment
         env:
