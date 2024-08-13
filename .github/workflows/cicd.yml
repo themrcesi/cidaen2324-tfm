@@ -98,6 +98,10 @@ jobs:
           prefect-api-key: ${{ secrets.PREFECT_API_KEY }}
           prefect-workspace: ${{ secrets.PREFECT_WORKSPACE }}
         run: |
+
+      - name: Set docker build namespace
+        shell: bash
+        run: |
           prefect config set PREFECT_DEFAULT_DOCKER_BUILD_NAMESPACE=${{ secrets.AWS_ECR_REGISTRY }}
 
       - name: Run Prefect deployment
