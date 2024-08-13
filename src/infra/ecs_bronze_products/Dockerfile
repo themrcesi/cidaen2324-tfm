@@ -2,7 +2,7 @@
 FROM python:3.12-slim-bookworm
 
 # Install awsdk pandas
-RUN pip3 install awswrangler pandas
+RUN pip install awswrangler pandas
 
 # Copy your .py file
 COPY src/etl/ /app/etl/
