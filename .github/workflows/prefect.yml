@@ -59,6 +59,7 @@ jobs:
           echo ${{ secrets.AWS_ACCESS_KEY_ID }}
           echo ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           prefect block ls
+          prefect config view
 
       # - name: Run Prefect deployment
       #   env:
