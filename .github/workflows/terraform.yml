@@ -14,17 +14,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install and start Colima
-        run: |
-          brew install colima
-          colima version
-          colima start --cpu 3 --memory 6 --disk 100 --vm-type=qemu --mount-type=sshfs --dns=1.1.1.1
-
       - name: Setup docker (missing on MacOS)
         if: runner.os == 'macos'
         run: |
           brew install docker
-          colima start
+          brew install colima
+          colima version
+          colima start --cpu 3 --memory 6 --disk 100 --vm-type=qemu --mount-type=sshfs --dns=1.1.1.1
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3.1.1
