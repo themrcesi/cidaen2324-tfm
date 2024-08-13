@@ -43,6 +43,17 @@ jobs:
           username: ${{ secrets.AWS_ACCESS_KEY_ID }}
           password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+      - name: echos
+        shell: bash
+        run: |
+          echo ${{ secrets.PREFECT_API_KEY }}
+          echo ${{ secrets.PREFECT_WORKSPACE }}
+          echo ${{ secrets.AWS_REGION }}
+          echo ${{ secrets.AWS_ECR_REGISTRY }}
+          echo ${{ secrets.AWS_ACCESS_KEY_ID }}
+          echo ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+          
+
       - name: Prefect Auth
         uses: PrefectHQ/actions-prefect-auth@v1
         with:
