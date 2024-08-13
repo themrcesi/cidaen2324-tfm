@@ -97,7 +97,6 @@ jobs:
         with:
           prefect-api-key: ${{ secrets.PREFECT_API_KEY }}
           prefect-workspace: ${{ secrets.PREFECT_WORKSPACE }}
-        run: |
 
       - name: Set docker build namespace
         shell: bash
