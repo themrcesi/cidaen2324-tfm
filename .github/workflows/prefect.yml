@@ -43,6 +43,12 @@ jobs:
           username: ${{ secrets.AWS_ACCESS_KEY_ID }}
           password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+      - name: Prefect Auth
+        uses: PrefectHQ/actions-prefect-auth@v1
+        with:
+          prefect-api-key: ${{ secrets.PREFECT_API_KEY }}
+          prefect-workspace: ${{ secrets.PREFECT_WORKSPACE }}
+
       - name: echos
         shell: bash
         run: |
@@ -51,17 +57,11 @@ jobs:
           echo ${{ secrets.AWS_REGION }}
           echo ${{ secrets.AWS_ECR_REGISTRY }}
           echo ${{ secrets.AWS_ACCESS_KEY_ID }}
-          echo ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
-          
+          echo ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          prefect block ls
 
-      - name: Prefect Auth
-        uses: PrefectHQ/actions-prefect-auth@v1
-        with:
-          prefect-api-key: ${{ secrets.PREFECT_API_KEY }}
-          prefect-workspace: ${{ secrets.PREFECT_WORKSPACE }}
-
-      - name: Run Prefect deployment
-        env:
-          PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }} # Only needed if using Prefect Cloud
-        run: |
-          python -m src.orchestration.deployments
+      # - name: Run Prefect deployment
+      #   env:
+      #     PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }} # Only needed if using Prefect Cloud
+      #   run: |
+      #     python -m src.orchestration.deployments
