@@ -53,4 +53,4 @@ jobs:
         env:
           PREFECT_API_KEY: ${{ secrets.PREFECT_API_KEY }} # Only needed if using Prefect Cloud
         run: |
-          python -m src.orchestration.deployment
+          python -m src.orchestration.deployments
