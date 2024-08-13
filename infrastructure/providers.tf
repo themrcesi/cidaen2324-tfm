@@ -37,7 +37,7 @@ locals {
   dkr_img_src_sha256 = sha256(join("", [for f in fileset(".", "${local.dkr_img_src_path}/**") : file(f)]))
 
   dkr_build_cmd = <<-EOT
-        docker build -t ${local.ecr_reg}/${local.ecr_repo}:${local.image_tag} \
+        docker build --platform linux/arm64 --t ${local.ecr_reg}/${local.ecr_repo}:${local.image_tag} \
             -f ${local.dkr_img_src_path}/Dockerfile ./../
 
         
