@@ -27,6 +27,12 @@ resource "aws_lambda_function" "lambda_fn" {
   filename         = "${path.module}/../../lambda_function_${var.lambda_fn_name}.zip"
 }
 
+resource "aws_lambda_function_event_invoke_config" "example" {
+  function_name                = aws_lambda_function.lambda_fn.function_name
+  maximum_event_age_in_seconds = 60
+  maximum_retry_attempts       = 0
+}
+
 resource "null_resource" "cleanup_lambda_zip" {
   depends_on = [ aws_lambda_function.lambda_fn ]
   provisioner "local-exec" {
