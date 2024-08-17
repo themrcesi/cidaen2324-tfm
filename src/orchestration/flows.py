@@ -8,7 +8,6 @@ from .tasks import (
     bronze_categories,
     bronze_products,
     gold_categories,
-    gold_locations,
     gold_products,
     raw_categories,
     raw_product_category,
@@ -69,7 +68,7 @@ def etl(day: Optional[datetime.datetime] = None) -> None:
     bronze_products(day=day)
     silver_products(day=day)
     gold_categories(day=day)
-    gold_locations(day=day)
+    # gold_locations(day=day)
     gold_products(day=day)
 
 
