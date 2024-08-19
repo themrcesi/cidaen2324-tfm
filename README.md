@@ -78,6 +78,24 @@ terraform apply
 
 ---
 
+## Github Actions
+
+The CI/CD pipeline for this project is configured using GitHub Actions to automate deployments and updates. The pipeline consists of two main jobs:
+
+1) **Terraform Deployment**
+
+    - **Purpose**: Deploys and updates the AWS infrastructure using Terraform.
+    - **Process**: This job runs Terraform commands to apply the infrastructure changes. It ensures that the necessary AWS resources are provisioned and configured correctly.
+    - **Details**: The job checks out the repository code, sets up Terraform, and applies the configuration files found in the /infrastructure directory.
+
+2) **Prefect Deployment**
+
+    - **Purpose**: Deploys the Prefect ETL flow to Prefect Cloud.
+    - **Process**: This job pushes the latest ETL flow definitions to Prefect Cloud, ensuring that the ETL pipeline is up-to-date and scheduled to run according to the defined parameters.
+    - **Details**: The job checks out the repository code, sets up the environment, and uses the Prefect CLI to deploy the flow defined in the /src/orchestration directory.
+
+---
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
