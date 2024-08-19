@@ -4,7 +4,7 @@ pg = st.navigation(
     [
         st.Page("sections/0_portada.py", title="Home", icon=":material/home:"),
         st.Page(
-            "sections/1_intro.py", title="Introduction", icon=":material/overview:"
+            "sections/1_intro.py", title="Introducción", icon=":material/overview:"
         ),
         st.Page(
             "sections/2_products.py", title="Productos", icon=":material/inventory:"
