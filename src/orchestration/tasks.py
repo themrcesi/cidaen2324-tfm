@@ -6,9 +6,12 @@ from prefect.tasks import task_input_hash
 import time
 import random
 import boto3
+from botocore.config import Config
 
 ecs_client = boto3.client("ecs", region_name="eu-west-3")
-lambda_client = boto3.client("lambda", region_name="eu-west-3")
+lambda_client = boto3.client(
+    "lambda", region_name="eu-west-3", config=Config(read_timeout=600)
+)
 
 
 def _get_task_status(cluster, task_arn) -> Tuple[str, int]:
